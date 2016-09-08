@@ -16,6 +16,9 @@ use XML::Simple;
 # Net::Intermapper::*
 use Net::Intermapper::User;
 use Net::Intermapper::Device;
+use Net::Intermapper::Interface;
+use Net::Intermapper::Map;
+use Net::Intermapper::Vertice;
 
 BEGIN {
     use Exporter ();
@@ -97,6 +100,42 @@ sub devices # No Moose here :(
 	return $self->{"Devices"};
 }	
 
+sub interfaces # No Moose here :(
+{	my $self = shift;
+    $ERROR = "";
+	if (@_)
+	{ my %args = @_; 
+	  $self->{"Interfaces"} = $args{"interfaces"}; 
+	} else
+	{ $self->{"Interfaces"} = $self->query("interfaces"); 
+	}
+	return $self->{"Interfaces"};
+}	
+
+sub maps # No Moose here :(
+{	my $self = shift;
+    $ERROR = "";
+	if (@_)
+	{ my %args = @_; 
+	  $self->{"Maps"} = $args{"maps"}; 
+	} else
+	{ $self->{"Maps"} = $self->query("maps"); 
+	}
+	return $self->{"Maps"};
+}	
+
+sub vertices # No Moose here :(
+{	my $self = shift;
+    $ERROR = "";
+	if (@_)
+	{ my %args = @_; 
+	  $self->{"Vertices"} = $args{"vertices"}; 
+	} else
+	{ $self->{"Vertices"} = $self->query("vertices"); 
+	}
+	return $self->{"Vertices"};
+}	
+
 sub query 
 { my ($self, $type) = @_;
   my $hostname = $self->hostname;
@@ -119,11 +158,14 @@ sub query
   }
   if ($self->format eq "xml")
   { #$self->parse_xml($type, $result->content); # XML seems to be broken?!?
-    #warn Dumper $result->content;
+    warn Dumper $result->content;
   }
   
    return $self->{"Users"} if $type eq "users";
    return $self->{"Devices"} if $type eq "devices";
+   return $self->{"Interfaces"} if $type eq "interfaces";
+   return $self->{"Maps"} if $type eq "maps";
+   return $self->{"Vertices"} if $type eq "vertices";
 }
 
 sub parse_xml # Broken!
@@ -153,7 +195,40 @@ sub parse_xml # Broken!
     $self->{"Devices"} = \%devices;
 	return $self->{"Devices"};
   }
+  
+  if ($type eq "interfaces")
+  { my $interfaces_ref = $xmlout->{"interfaces"};
+    my %interfaces = ();
+    for my $key (@ {$interfaces_ref})
+    { my $interface = Net::Intermapper::Interface->new(  @{ $key } );
+      $interfaces{$key} = $interface;
+    }
+    $self->{"Interfaces"} = \%interfaces;
+	return $self->{"Interfaces"};
+  }
+  
+  if ($type eq "maps")
+  { my $maps_ref = $xmlout->{"maps"};
+    my %maps = ();
+    for my $key (@ {$maps_ref})
+    { my $map = Net::Intermapper::Map->new(  @{ $key } );
+      $maps{$key} = $map;
+    }
+    $self->{"Maps"} = \%maps;
+	return $self->{"Maps"};
+  }
 
+  if ($type eq "vertices")
+  { my $vertices_ref = $xmlout->{"vertices"};
+    my %vertices = ();
+    for my $key (@ {$vertices_ref})
+    { my $vertice = Net::Intermapper::Vertice->new(  @{ $key } );
+      $vertices{$key} = $vertice;
+    }
+    $self->{"Vertices"} = \%vertices;
+	return $self->{"Vertices"};
+  }
+ 
 }
 
 sub parse_csv
@@ -166,6 +241,13 @@ sub parse_csv
   { @header = @Net::Intermapper::User::HEADERS; }
   if ($type eq "devices")
   { @header = @Net::Intermapper::Device::HEADERS; }
+  if ($type eq "interfaces")
+  { @header = @Net::Intermapper::Interface::HEADERS; }
+  if ($type eq "maps")
+  { @header = @Net::Intermapper::Map::HEADERS; }
+  if ($type eq "vertices")
+  { @header = @Net::Intermapper::Vertice::HEADERS; }
+  
   my @lines = split(/\r\n/,$csv_ref);
   my $csv = Text::CSV_XS->new ({ "auto_diag" => "1", "binary" => "1" });
   for my $line (@lines)
@@ -184,8 +266,20 @@ sub parse_csv
   	  if ($type eq "devices")
 	  { my $device = Net::Intermapper::Device->new( %fields );
           $data{$device->Name} = $device;
-		  warn $device->Name;
       }
+  	  if ($type eq "interfaces")
+	  { my $interface = Net::Intermapper::Interface->new( %fields );
+          $data{$interface->InterfaceID} = $interface;
+      }
+   	  if ($type eq "maps")
+	  { my $map = Net::Intermapper::Map->new( %fields );
+          $data{$map->MapName} = $map;
+      }
+   	  if ($type eq "vertices")
+	  { my $vertice = Net::Intermapper::Vertice->new( %fields );
+          $data{$vertice->Name} = $vertice;
+      }
+
 	}
   }
   if ($type eq "users")
@@ -196,6 +290,19 @@ sub parse_csv
   { $self->{"Devices"} = \%data;
     return $self->{"Devices"};
   }
+  if ($type eq "interfaces")
+  { $self->{"Interfaces"} = \%data;
+    return $self->{"Interfaces"};
+  }
+  if ($type eq "maps")
+  { $self->{"Maps"} = \%data;
+    return $self->{"Maps"};
+  }
+  if ($type eq "vertices")
+  { $self->{"Vertices"} = \%data;
+    return $self->{"Vertices"};
+  }
+
 }
 
 =cut
