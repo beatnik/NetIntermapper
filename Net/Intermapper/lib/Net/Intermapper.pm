@@ -168,6 +168,36 @@ sub query
    return $self->{"Vertices"} if $type eq "vertices";
 }
 
+sub add 
+{ my $self = shift;
+  my $entry = shift;
+  my $username = $self->username;
+  my $password = $self->password;
+  my $format = $self->format; # csv or xml (unsupported at this point)
+
+  my $hostname = $self->hostname;
+  my $port = $self->port;
+  if ($port ne "") { $port = ":$port"; }
+  
+  if ($self->ssl)
+  { $hostname = "https://$username:$password\@$hostname$port/~import/file"; } else
+  { $hostname = "http://$username:$password\@$hostname$port/~import/file"; }
+
+  my $data = $entry->header($format);
+  if ($format eq "csv")
+  { $data .= $entry->toCSV; }
+  $data =~ s/^\s*//g;
+
+  my $request = HTTP::Request->new(POST => "$hostname");
+  my $useragent = LWP::UserAgent->new("ssl_opts" => $self->ssl_options);
+
+  $request->content_type('application/x-www-form-urlencoded');
+  $request->content($data);
+  $request->header('Accept' => 'text/html');
+  my $result = $useragent->request($request);
+  return $result;
+}
+
 sub parse_xml # Broken!
 { my $self = shift;
   my $type = shift;

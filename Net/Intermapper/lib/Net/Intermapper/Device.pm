@@ -376,10 +376,30 @@ sub toXML
 return $result;
 }
 
+sub toCSV
+{ my $self = shift;
+  my $id = $self->Id;
+  my $result = "";
+  my @attributes = $self->meta->get_all_attributes;
+  my %attributes = ();
+  for my $attribute (@attributes)
+  { $attributes{$attribute->name} = $attribute->get_value($self);
+  }
+  for my $key (@HEADERS)
+  { $result .= $attributes{$key}.","; }
+  chop $result; # Remove the comma of the last field
+  $result .= "\r\n";
+  return $result;
+}
+
 sub header
 { my $self = shift;
-  my $users = shift;
-  return qq{<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:user xmlns:ns2="identity.rest.mgmt.acs.nm.cisco.com">$users</ns2:user>};
+  my $format = shift || "";
+  my $header = "# format=$format table=devices fields="; 
+  for my $key (@HEADERS)
+  { $header .= $key.","; }
+  $header .= "\r\n";
+  return $header;
 }
 	
 =head1 NAME
