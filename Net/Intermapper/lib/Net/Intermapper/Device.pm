@@ -24,358 +24,434 @@ SysServices EntServialNum EntMfgName EntModelName DataRetentionPolicy CustomerNa
 has 'MapName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },
   );
 
 has 'MapPath' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "/" },	  
   );
 
 has 'Address' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'Id' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'Name' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'Probe' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "Ping/Echo" }, # SNMP Traffic
   );
 
 has 'Comment' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Community' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "public" },	  	  
   );
 
 has 'DisplayIfUnNumbered' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "false" },
   );
 
 has 'DNSName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'IgnoreIfAppleTalk' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'IgnoreIfDiscards' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },
   );
 
 has 'IgnoreIfErrors' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'IgnoreOutages' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'AllowPeriodicProbe' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'IMProbe' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Latitude' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Longtitude' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'LastTimeDown' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'LastTimeSysUp' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'LastTimeUp' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'MACAddress' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'MapAs' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'MapId,' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'MaxTries' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'NetBiosName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'PctLoss' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'ShortTermPctLoss' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Availability' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'PollInterval' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Port' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Resolve' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'RoundTripTime' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'SNMPv3AuthPassword' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SNMPv3AuthProtocol' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SNMPv3PrivPassword' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'SNMPv3PrivProtocol' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'SNMPv3UserName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'SNMPVersion' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'Status' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'StatusLevel' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'StatusLevelReason' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysDescr' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysContact' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysLocation' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysObjectID' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'TimeOut' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'IMID' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Type' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'ProbeXML' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SNMPVersionInt' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysServices' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'EntServialNum' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'EntMfgName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'EntModelName' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'DataRetentionPolicy' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'CustomerNameReference' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'EnterpriseID' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'DeviceKind' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'SysUpTime' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'LastModified' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Parent' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Acknowledge' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'AckMessage' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'AckExpiration' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'AckTimer' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  
   );
 
 has 'VertexID' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
 has 'Layer2' => (
       is  => 'rw',
       isa => 'Str',
+	  default => sub { "" },	  	  
   );
 
+has 'mode' => ( # create, update, delete
+	is => 'rw',
+	isa => 'Str',
+	default => sub { "create"; },
+	);
+  
 # No Moose	
 	
 sub toXML
 { my $self = shift;
-  my $id = $self->Id;
+  my $id = shift;
   my $result;
-
+ # Need to build the XML formatting!!
+  if ($id) { $result = "   <id>$id</id>\n"; }
 return $result;
 }
-
+	
 sub toCSV
 { my $self = shift;
   my $id = $self->Id;
@@ -383,11 +459,47 @@ sub toCSV
   my @attributes = $self->meta->get_all_attributes;
   my %attributes = ();
   for my $attribute (@attributes)
-  { $attributes{$attribute->name} = $attribute->get_value($self);
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
   }
   for my $key (@HEADERS)
-  { $result .= $attributes{$key}.","; }
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  next if $key eq "mode";
+      $result .= $attributes{$key}.","; 
+	}
+	if ($self->mode eq "update")
+    { next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+  }
   chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
+  $result .= "\r\n";
+  return $result;
+}
+
+sub toTAB
+{ my $self = shift;
+  my $id = $self->Id;
+  my $result = "";
+  my @attributes = $self->meta->get_all_attributes;
+  my %attributes = ();
+  for my $attribute (@attributes)
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
+  }
+  for my $key (@HEADERS)
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+	if ($self->mode eq "update")
+    { next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+  }
+  chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
   $result .= "\r\n";
   return $result;
 }
@@ -397,10 +509,19 @@ sub header
   my $format = shift || "";
   my $header = "# format=$format table=devices fields="; 
   for my $key (@HEADERS)
-  { $header .= $key.","; }
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  $header .= $key."\t,"; 
+	}
+	if ($self->mode eq "update")
+    { $header .= $key."\t,"; 
+	}
+  }
+  chop $header; 
   $header .= "\r\n";
   return $header;
 }
+
 	
 =head1 NAME
 

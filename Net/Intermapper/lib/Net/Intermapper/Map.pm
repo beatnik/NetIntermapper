@@ -17,108 +17,186 @@ BEGIN {
 # MOOSE!
 
 has 'MapId' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { ""; },	  
   );
 
 has 'MapName' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { ""; },
   );
 
 has 'MapPath' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { "/"; },
   );
 
 has 'Status' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { ""; },	
   );
 
 has 'DeviceCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+	isa => 'Str',
   );
 
 has 'NetworkCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'InterfaceCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'DownCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'CriticalCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'AlarmCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'WarningCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'OkayCount' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'ro',
+    isa => 'Str',
   );
 
 has 'DataRetentionPolicy' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
   );
 
 has 'IMID' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
   );
 
 has 'Enabled' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { ""; },
   );
 
 has 'Layer2' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
 	);
 
+# This methode is used for generating only wanted fields..
+has 'mode' => ( # create, update, delete
+	is => 'rw',
+	isa => 'Str',
+	default => sub { "create"; },
+	);
+	
 # No Moose	
 	
 sub toXML
 { my $self = shift;
   my $id = $self->Id;
   my $result = "";
-  
+  my $mapid = $self->MapId;
+  my $mapname = $self->MapName || "";
+  my $mappath = $self->MapPath || "";
+  my $status = $self->Status || "";
+  my $devicecount = $self->DeviceCount || "";
+  my $networkcount = $self->NetworkCount || "";
+  my $interfacecount = $self->InterfaceCount || "";
+  my $downcount = $self->DownCount || "";
+  my $criticalcount = $self->CriticalCount || "";
+  my $alarmcount = $self->AlarmCount || "";
+  my $warningcount = $self->WarningCount || "";
+  my $okaycount = $self->OkayCount || "";
+  my $dataretentionpolicy = $self->DataRetentionPolicy || "";
+  my $imid = $self->IMID || "";
+  my $enabled = $self->Enabled || "";
+  my $layer2 = $self->Layer2 || "";
   if ($id) { $result = "   <id>$id</id>\n"; }
 return $result;
 }
 
 sub toCSV
 { my $self = shift;
-  my $id = $self->MapId;
+  my $id = $self->Id;
   my $result = "";
   my @attributes = $self->meta->get_all_attributes;
   my %attributes = ();
   for my $attribute (@attributes)
-  { $attributes{$attribute->name} = $attribute->get_value($self);
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
   }
   for my $key (@HEADERS)
-  { $result .= $attributes{$key}.","; }
+  { if ($self->mode eq "create")
+    { next if $key eq "MapId";
+	  next if $key eq "Status";
+	  next if $key eq "DeviceCount";
+	  next if $key eq "NetworkCount";
+	  next if $key eq "InterfaceCount";
+	  next if $key eq "DownCount";
+	  next if $key eq "CriticalCount";
+	  next if $key eq "AlarmCount";
+	  next if $key eq "WarningCount";
+	  next if $key eq "OkayCount";
+	  next if $key eq "DataRetentionPolicy";
+	  next if $key eq "Enabled";
+	  next if $key eq "Layer2";
+	  next if $key eq "IMID";
+      $result .= $attributes{$key}.","; }
+  }
   chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
+  $result .= "\r\n";
+  return $result;
+}
+
+sub toTAB
+{ my $self = shift;
+  my $mapid = $self->MapId;
+  my $result = "";
+  my @attributes = $self->meta->get_all_attributes;
+  my %attributes = ();
+  for my $attribute (@attributes)
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
+  }
+  for my $key (@HEADERS)
+  { if ($self->mode eq "create")
+    { next if $key eq "MapId";
+	  next if $key eq "Status";
+	  next if $key eq "DeviceCount";
+	  next if $key eq "NetworkCount";
+	  next if $key eq "InterfaceCount";
+	  next if $key eq "DownCount";
+	  next if $key eq "CriticalCount";
+	  next if $key eq "AlarmCount";
+	  next if $key eq "WarningCount";
+	  next if $key eq "OkayCount";
+	  next if $key eq "DataRetentionPolicy";
+	  next if $key eq "Enabled";
+	  next if $key eq "Layer2";
+	  next if $key eq "IMID";
+      $result .= $attributes{$key}."\t"; 
+	}
+  }
+  chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
   $result .= "\r\n";
   return $result;
 }
@@ -128,7 +206,23 @@ sub header
   my $format = shift || "";
   my $header = "# format=$format table=maps fields="; 
   for my $key (@HEADERS)
-  { $header .= $key.","; }
+  { next if $key eq "MapId";
+	next if $key eq "Status";
+	next if $key eq "DeviceCount";
+	next if $key eq "NetworkCount";
+	next if $key eq "InterfaceCount";
+	next if $key eq "DownCount";
+	next if $key eq "CriticalCount";
+	next if $key eq "AlarmCount";
+	next if $key eq "WarningCount";
+	next if $key eq "OkayCount";
+	next if $key eq "DataRetentionPolicy";
+	next if $key eq "Enabled";
+	next if $key eq "Layer2";
+	next if $key eq "IMID";
+    $header .= $key."\t,"; 
+  }
+  chop $header;
   $header .= "\r\n";
   return $header;
 }

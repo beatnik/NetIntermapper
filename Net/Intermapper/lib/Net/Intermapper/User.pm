@@ -17,13 +17,15 @@ BEGIN {
 # MOOSE!
 		   
 has 'Id' => (
-      is  => 'rw',
-      isa => 'Str',
+    is  => 'rw',
+    isa => 'Str',
+	default => sub { ""; },
   );
 
 has 'Groups' => ( 
 	is => 'rw',
 	isa => 'Str',
+	default => sub { "Read_Only"; },
 	);
 
 has 'Name' => (
@@ -34,30 +36,39 @@ has 'Name' => (
 has 'Password' => (
 	is => 'rw',
 	isa => 'Str',
+	default => sub { "&#0;"; },
 	);
 
 has 'Guest' => (
 	is => 'rw',
 	isa => 'Str',
+	default => sub { "false"; },
 	);
 
 has 'External' => (
 	is => 'rw',
 	isa => 'Str',
+	default => sub { ""; },
 	);
 
+has 'mode' => ( # create, update, delete
+	is => 'rw',
+	isa => 'Str',
+	default => sub { "create"; },
+	);
+	
 # No Moose	
 	
 sub toXML
 { my $self = shift;
   my $id = $self->Id;
   my $name = $self->Name || "";
-  my $groups = $self->Groups || "";  
-  my $external = $self->External || "";    
-  my $guest = $self->Guest || "";      
-  my $password = $self->Password || "";
+  my $groups = $self->Groups || "Read_only";  
+  my $external = $self->External || "";
+  my $guest = $self->Guest || "true";      
+  my $password = $self->Password || "&#0;";
   my $result = "";
-  
+  # Need to build the XML formatting!!
   if ($id) { $result = "   <id>$id</id>\n"; }
 return $result;
 }
@@ -69,11 +80,47 @@ sub toCSV
   my @attributes = $self->meta->get_all_attributes;
   my %attributes = ();
   for my $attribute (@attributes)
-  { $attributes{$attribute->name} = $attribute->get_value($self);
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
   }
   for my $key (@HEADERS)
-  { $result .= $attributes{$key}.","; }
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  next if $key eq "mode";
+      $result .= $attributes{$key}.","; 
+	}
+	if ($self->mode eq "update")
+    { next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+  }
   chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
+  $result .= "\r\n";
+  return $result;
+}
+
+sub toTAB
+{ my $self = shift;
+  my $id = $self->Id;
+  my $result = "";
+  my @attributes = $self->meta->get_all_attributes;
+  my %attributes = ();
+  for my $attribute (@attributes)
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
+  }
+  for my $key (@HEADERS)
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+	if ($self->mode eq "update")
+    { next if $key eq "mode";
+	  $result .= $attributes{$key}."\t"; 
+	}
+  }
+  chop $result; # Remove the comma of the last field
+  $result =~ s/\s$//g;
   $result .= "\r\n";
   return $result;
 }
@@ -83,7 +130,15 @@ sub header
   my $format = shift || "";
   my $header = "# format=$format table=users fields="; 
   for my $key (@HEADERS)
-  { $header .= $key.","; }
+  { if ($self->mode eq "create")
+    { next if $key eq "Id";
+	  $header .= $key."\t,"; 
+	}
+	if ($self->mode eq "update")
+    { $header .= $key."\t,"; 
+	}
+  }
+  chop $header; 
   $header .= "\r\n";
   return $header;
 }

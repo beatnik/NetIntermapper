@@ -196,7 +196,7 @@ sub toCSV
   my @attributes = $self->meta->get_all_attributes;
   my %attributes = ();
   for my $attribute (@attributes)
-  { $attributes{$attribute->name} = $attribute->get_value($self);
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
   }
   for my $key (@HEADERS)
   { $result .= $attributes{$key}.","; }
