@@ -22,13 +22,13 @@ use Net::Intermapper::Vertice;
 
 BEGIN {
     use Exporter ();
-    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $ERROR);
+    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $ERROR %_CHANGED);
     $VERSION     = '0.01';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
     %EXPORT_TAGS = ();
-	
+	%_CHANGED = ();
 	$ERROR = ""; # TODO: Document error properly!
 }
 
@@ -82,64 +82,102 @@ has 'format' => (
 	default => sub { "csv" },
 ); 
 
+has 'cache' => (
+	is => 'rw',
+	isa => 'Int',
+	default => sub { "1" }, # Cache any request
+);
+
 sub users # No Moose here :(
-{	my $self = shift;
-    $ERROR = "";
-	if (@_)
-	{ my %args = @_; 
-	  $self->{"Users"} = $args{"users"}; 
-	} else
-	{ $self->{"Users"} = $self->query("users"); 
-	}
-	return $self->{"Users"};
+{ my $self = shift;
+  $ERROR = "";
+  $_CHANGED{"users"} = !$self->{"Users"} ? 1 : $_CHANGED{"users"};
+  if (@_)
+  { #my %args = @_; 
+	#$self->{"Users"} = $args{"users"}; 
+	$self->{"Users"} = $_[0]; # Expect a hash ref to be passed
+	# Yes, this code is slightly based of the Net::Cisco::ACS code so may be some of it is weird
+	# Are you really reading the comments now? 
+  } else
+  { if (!$self->cache) # No caching? Always reload
+	{ $self->{"Users"} = $self->query("users"); }
+	else
+	{ $self->{"Users"} = $self->query("users") if $_CHANGED{"users"}; # Only reload if changed
+	} 
+  }
+  return wantarray ? % { $self->{"Users"} } : $self->{"Users"};
 }	
 
 sub devices # No Moose here :(
-{	my $self = shift;
-    $ERROR = "";
-	if (@_)
-	{ my %args = @_; 
-	  $self->{"Devices"} = $args{"devices"}; 
-	} else
-	{ $self->{"Devices"} = $self->query("devices"); 
-	}
-	return $self->{"Devices"};
+{ my $self = shift;
+  $ERROR = "";
+  $_CHANGED{"devices"} = !$self->{"Devices"} ? 1 : $_CHANGED{"devices"};
+  if (@_)
+  { #my %args = @_; 
+    #$self->{"Devices"} = $args{"devices"}; 
+	$self->{"Devices"} = $_[0]; # Expect a hash ref to be passed
+  } else
+  { if (!$self->cache) # No caching? Always reload
+    { $self->{"Devices"} = $self->query("devices");  }
+    else
+    { $self->{"Devices"} = $self->query("devices") if $_CHANGED{"devices"}; # Only reload if changed
+    } 
+  }
+  return wantarray ? % { $self->{"Devices"} } : $self->{"Devices"};  
 }	
 
 sub interfaces # No Moose here :(
-{	my $self = shift;
-    $ERROR = "";
-	if (@_)
-	{ my %args = @_; 
-	  $self->{"Interfaces"} = $args{"interfaces"}; 
-	} else
-	{ $self->{"Interfaces"} = $self->query("interfaces"); 
-	}
-	return $self->{"Interfaces"};
+{ my $self = shift;
+  $ERROR = "";
+  $_CHANGED{"interfaces"} = !$self->{"Interfaces"} ? 1 : $_CHANGED{"interfaces"};
+  if (@_)
+  { #my %args = @_; 
+	#$self->{"Interfaces"} = $args{"interfaces"}; 
+	$self->{"Interfaces"} = $_[0]; # Expect a hash ref to be passed
+  } else
+  { if (!$self->cache) # No caching? Always reload
+	{ $self->{"Interfaces"} = $self->query("interfaces");  }
+	else
+	{ $self->{"Interfaces"} = $self->query("interfaces") if $_CHANGED{"interfaces"}; # Only reload if changed
+	} 
+  }
+  return wantarray ? % { $self->{"Interfaces"} } : $self->{"Interfaces"};  
 }	
 
 sub maps # No Moose here :(
-{	my $self = shift;
-    $ERROR = "";
-	if (@_)
-	{ my %args = @_; 
-	  $self->{"Maps"} = $args{"maps"}; 
-	} else
-	{ $self->{"Maps"} = $self->query("maps"); 
+{ my $self = shift;
+  $ERROR = "";
+  $_CHANGED{"maps"} = !$self->{"Maps"} ? 1 : $_CHANGED{"maps"};
+  if (@_)
+  { #my %args = @_; 
+    #$self->{"Maps"} = $args{"maps"}; 
+	$self->{"Maps"} = $_[0]; # Expect a hash ref to be passed
+  } else
+  { if (!$self->cache) # No caching? Always reload
+    { $self->{"Maps"} = $self->query("maps");  }
+	else
+	{ $self->{"Maps"} = $self->query("maps") if $_CHANGED{"maps"};  # Only reload if changed
 	}
-	return $self->{"Maps"};
+  }
+  return wantarray ? % { $self->{"Maps"} } : $self->{"Maps"};
 }	
 
 sub vertices # No Moose here :(
-{	my $self = shift;
-    $ERROR = "";
-	if (@_)
-	{ my %args = @_; 
-	  $self->{"Vertices"} = $args{"vertices"}; 
-	} else
-	{ $self->{"Vertices"} = $self->query("vertices"); 
-	}
-	return $self->{"Vertices"};
+{ my $self = shift;
+  $ERROR = "";
+  $_CHANGED{"vertices"} = !$self->{"Vertices"} ? 1 : $_CHANGED{"vertices"};
+  if (@_)
+  { #my %args = @_; 
+    #$self->{"Vertices"} = $args{"vertices"}; 
+	$self->{"Vertices"} = $_[0]; # Expect a hash ref to be passed
+  } else
+  { if (!$self->cache) # No caching? Always reload
+	{ $self->{"Vertices"} = $self->query("vertices");  }
+	else
+	{ $self->{"Vertices"} = $self->query("vertices") if $_CHANGED{"vertices"}; # Only reload if changed
+	} 
+  }
+  return wantarray ? % { $self->{"Vertices"} } : $self->{"Vertices"};  
 }	
 
 sub query 
@@ -168,23 +206,26 @@ sub query
 
   if ($self->format eq "xml")
   { #$self->parse_xml($type, $result->content); # XML seems to be broken?!?
-    warn Dumper $result->content;
+    #warn Dumper $result->content;
+	#This needs work!!
   }
-  
-   return $self->{"Users"} if $type eq "users";
-   return $self->{"Devices"} if $type eq "devices";
-   return $self->{"Interfaces"} if $type eq "interfaces";
-   return $self->{"Maps"} if $type eq "maps";
-   return $self->{"Vertices"} if $type eq "vertices";
+  $_CHANGED{$type} = 0; 
+  return $self->{"Users"} if $type eq "users";
+  return $self->{"Devices"} if $type eq "devices";
+  return $self->{"Interfaces"} if $type eq "interfaces";
+  return $self->{"Maps"} if $type eq "maps";
+  return $self->{"Vertices"} if $type eq "vertices";
 }
 
 # It seems that Maps and Interfaces cannot be created?
 sub create
 { my $self = shift;
-  my $entry = shift;
+  my @entries = @_;
+  return unless @entries;
   my $username = $self->username;
   my $password = $self->password;
   my $format = $self->format; # csv or xml (unsupported at this point)
+  my $type = "";
   
   my $hostname = $self->hostname;
   my $port = $self->modifyport;
@@ -193,12 +234,17 @@ sub create
   { $hostname = "https://$username:$password\@$hostname$port/~import/file"; } else
   { $hostname = "http://$username:$password\@$hostname$port/~import/file"; }
 
-  my $data = $entry->header($format);
-  if ($format eq "csv")
-  { $data .= $entry->toCSV; }
-  if ($format eq "tab")
-  { $data .= $entry->toTAB; }
-  $data =~ s/^\s*//g;
+  my $data = $entries[0]->header($format);
+  $type = lc(ref($entries[0]));
+  $type =~ s/^net\:\:intermapper\:\://; # Needed for the change flags@
+  while(@entries)
+  { my $entry = shift @entries; 
+    if ($format eq "csv")
+    { $data .= $entry->toCSV; }
+    if ($format eq "tab")
+    { $data .= $entry->toTAB; }
+    $data =~ s/^\s*//g;
+  }
 
   my $request = HTTP::Request->new(POST => "$hostname");
   my $useragent = LWP::UserAgent->new("ssl_opts" => $self->ssl_options);
@@ -207,7 +253,8 @@ sub create
   $request->content($data);
   $request->header('Accept' => 'text/html');
   my $result = $useragent->request($request);
-  return $result;
+  $_CHANGED{$type} = 0; # Flag smart caching to force reload
+  return $result; 
 }
 
 # This SHOULD be sufficient?
@@ -215,6 +262,14 @@ sub update
 { my $self = shift;
   my $entry = shift;
   $entry->mode("update");
+  return $self->create($entry);
+}
+
+# This SHOULD be sufficient?
+sub delete
+{ my $self = shift;
+  my $entry = shift;
+  $entry->mode("delete");
   return $self->create($entry);
 }
 
@@ -231,7 +286,7 @@ sub parse_xml # Broken!
     { my $user = Net::Intermapper::User->new(  @{ $key } );
       $users{$key} = $user;
     }
-    $self->{"Users"} = \%users;
+    $self->{"Users"} = \%users; #Not sure if this works with the 
 	return $self->{"Users"};
   }
   
@@ -311,23 +366,23 @@ sub parse_csv
 	  }
 	  if ($type eq "users")
 	  { my $user = Net::Intermapper::User->new( %fields );
-          $data{$user->Name} = $user;
+        $data{$user->Name} = $user;
       }
   	  if ($type eq "devices")
 	  { my $device = Net::Intermapper::Device->new( %fields );
-          $data{$device->Name} = $device;
+        $data{$device->Id} = $device;
       }
   	  if ($type eq "interfaces")
 	  { my $interface = Net::Intermapper::Interface->new( %fields );
-          $data{$interface->InterfaceID} = $interface;
+        $data{$interface->InterfaceID} = $interface;
       }
    	  if ($type eq "maps")
 	  { my $map = Net::Intermapper::Map->new( %fields );
-          $data{$map->MapName} = $map;
+        $data{$map->MapName} = $map;
       }
    	  if ($type eq "vertices")
 	  { my $vertice = Net::Intermapper::Vertice->new( %fields );
-          $data{$vertice->Name} = $vertice;
+        $data{$vertice->Id} = $vertice;
       }
 
 	}
@@ -388,7 +443,7 @@ sub parse_tab
     }
   	if ($type eq "devices")
 	{ my $device = Net::Intermapper::Device->new( %fields );
-      $data{$device->Name} = $device;
+      $data{$device->Id} = $device;
     }
   	if ($type eq "interfaces")
 	{ my $interface = Net::Intermapper::Interface->new( %fields );
@@ -400,7 +455,7 @@ sub parse_tab
     }
    	if ($type eq "vertices")
 	{ my $vertice = Net::Intermapper::Vertice->new( %fields );
-      $data{$vertice->Name} = $vertice;
+      $data{$vertice->Id} = $vertice;
     }
   }
   if ($type eq "users")
@@ -435,7 +490,7 @@ Net::Intermapper - Interface with the HelpSystems Intermapper HTTP API
 =head1 SYNOPSIS
 
   use Net::Intermapper;
-  my $intermapper = Net::Intermapper->new(hostname=>"10.132.96.100", username=>"admin", password=>"nmsadmin");
+  my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
   # Options:
   # hostname - IP or hostname of Intermapper 5.x server
   # username - Username of Administrator user
@@ -443,50 +498,80 @@ Net::Intermapper - Interface with the HelpSystems Intermapper HTTP API
   # ssl - SSL enabled (1 - default) or disabled (0)
   # port - TCP port for querying information. Defaults to 8181
   # modifyport - TCP port for modifying information. Default to 443
+  # cache - Boolean to enable smart caching or force network queries
 
-  print Dumper $intermapper->users;
-  # Retrieve all users from Intermapper
-  # Returns hash with user name / Net::Intermapper::User pairs
+  my %users = $intermapper->users;
+  my $users_ref = $intermapper->users;
+  # Retrieve all users from Intermapper, Net::Intermapper::User instances
+  # Returns hash or hashref, depending on context
   
-  print Dumper $intermapper->devices;
-  # Retrieve all devices from Intermapper
-  # Returns hash with device name / Net::Intermapper::Device pairs
-  
-  print Dumper $intermapper->maps;
-  # Retrieve all maps from Intermapper
-  # Returns hash with map name / Net::Intermapper::Map pairs
-  
-  print Dumper $intermapper->interfaces;
-  # Retrieve all interfaces from Intermapper
-  # Returns hash with interface ID / Net::Intermapper::Interface pairs
-  
-  print Dumper $intermapper->vertices;  
-  # Retrieve all vertices from Intermapper
-  # Returns hash with name / Net::Intermapper::Vertice pairs
+  my %devices = $intermapper->devices;
+  my $devices_ref = $intermapper->devices;
+  # Retrieve all devices from Intermapper, Net::Intermapper::Device instances
+  # Returns hash or hashref, depending on context
+
+  my %maps = $intermapper->maps;
+  my $maps_ref = $intermapper->maps;
+  # Retrieve all maps from Intermapper, Net::Intermapper::Map instances
+  # Returns hash or hashref, depending on context
+
+  my %interfaces = $intermapper->interfaces;
+  my $interfaces_ref = $intermapper->interfaces;
+  # Retrieve all interfaces from Intermapper, Net::Intermapper::Interface instances
+  # Returns hash or hashref, depending on context
+
+  my %vertices = $intermapper->vertices;
+  my $vertices_ref = $intermapper->vertices;
+  # Retrieve all vertices from Intermapper, Net::Intermapper::Vertice instances
+  # Returns hash or hashref, depending on context
 
   my $user = $intermapper->users->{"admin"};
   print $user->header; 
+  print $device->header;
+  print $map->header;
+  print $interface->header;
+  print $vertice->header;
   # Generate 'directive' needed for manipulation. Mostly used internally.
   # $user->mode("create"); # This changes the header fields
   # $user->mode("update"); # This also changes the header fields
   # Both are NOT needed when adding or updating a record
   print $user->toTAB;
-  print $user->toXML;
-  print $user->toCSV;
+  print $device->toXML;
+  print $map->toCSV;
+  # Works on ALL classes
   # Produce human-readable output of each record. 
   
   my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
-  print Dumper $intermapper->create($user);
+  my $response = $intermapper->create($user);
   # Create new user
+  # Return value is HTTP::Response object
   
-  my $device = Net::Intermapper::Device->new(.......);
-  print Dumper $intermapper->create($device);
+  my $device = Net::Intermapper::Device->new(Name=>"testDevice", MapName=>"TestMap", MapPath=>"/TestMap", Address=>"10.0.0.1");
+  my $response = $intermapper->create($device);
   # Create new device
+  # Return value is HTTP::Response object
 
   $user->Password("Foobar123");
-  $intermapper->update($user);
+  my $response = $intermapper->update($user);
   # Update existing user
-   
+  # Return value is HTTP::Response object
+
+  my $user = $intermapper->users->{"bob"};
+  my $response = $intermapper->delete($user);
+  # Delete existing user
+  # Return value is HTTP::Response object
+
+  my $device = $intermapper->devices->{"UniqueDeviceID"};
+  my $response = $intermapper->delete($device);
+  # Delete existing device
+  # Return value is HTTP::Response object
+
+  my $users = { "Tom" => $tom_user, "Bob" => $bob_user };
+  $intermapper->users($users);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+  
 =head1 DESCRIPTION
 
 Net::Intermapper is a perl wrapper around the HelpSystems Intermapper API provided through HTTP/HTTPS for access to user accounts, device information, maps, interfaces and graphical elements.
@@ -508,7 +593,7 @@ Class constructor. Returns object of Net::Intermapper on succes. Required fields
 
 =item username
 
-=password
+=item password
 
 =back
 
@@ -519,6 +604,12 @@ Optional fields are
 =item ssl
 
 =item ssl_options
+
+=item port
+
+=item modifyport
+
+=item cache
 
 =back
 
@@ -548,6 +639,8 @@ Value is passed directly to LWP::UserAGent as ssl_opt. Default value (hash-ref) 
 
   { 'SSL_verify_mode' => SSL_VERIFY_NONE, 'verify_hostname' => '0' }
 
+This is a required value in the constructor but can be redefined afterwards.   
+  
 =back
 
 =item port
@@ -555,12 +648,22 @@ Value is passed directly to LWP::UserAGent as ssl_opt. Default value (hash-ref) 
 TCP port used for queries. This is an optional value in the constructor but can be redefined afterwards. By default, this is set to 8181.
 As the API is used a different mechanism to query information than it uses to update, the C<port> value is used for queries only and is automatically switched. Set this ONLY if you have customized Intermapper to listen to a different port.
 
-=back
-
 =item modifyport
 
 TCP port used for modifying values. This is an optional value in the constructor but can be redefined afterwards. By default, this is set to 443.
 As the API is used a different mechanism to modify (create and update) information than it uses to query, the C<modifyport> value is used for modifying only and is automatically switched. Set this ONLY if you have customized Intermapper to listen to a different port.
+
+=item cache
+
+Set to true (default) to use in-memory dataset to avoid unnecessary queries. Dataset are always queries when changes are made (after delete, create or update), per type. Changes to users dataset will not affect the devices dataset. This is a required value in the constructor but can be redefined afterwards. 
+
+  $intermapper->cache(0);
+  $intermapper->update($user);
+  # Users have changed. 
+  my $users = $intermapper->users;
+  # This will trigger network traffic
+  my $devices = $intermapper->devices
+  # This will NOT trigger network traffic
 
 =back
 
@@ -573,17 +676,91 @@ From the class instance, call the different methods for retrieving values.
 Returns all users
 
   my %users = $intermapper->users(); 
-  print $user->name;
+  my $user = $users{"Bob"};
+  print $user->Password;
 	
-The returned hash contains instances of L<Net::Intermapper::User>, using name (typically the username) as the hash key. 
-	
+The returned hash contains instances of L<Net::Intermapper::User>, using the username as the hash key. In scalar context, will return hashref. Modify the in-memory users dataset:
+
+  my $users = { "Tom" => $tom_user, "Bob" => $bob_user };
+  $intermapper->users($users);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+
+This method will typically trigger a network connection, depending on caching.
+  
 =item devices
 
-Returns hash or single instance of L<Net::Intermapper::Device>, using name (typically the username) as the hash key. 
-
+returns all devices
+  
   my %devices = $intermapper->devices(); 
-  print $device->name;
-	
+  my $device = $devices{"MainRouter"};
+  print $device->Address;
+
+The returned hash contains instances of L<Net::Intermapper::Device>, using the device name as the hash key. In scalar context, will return hashref. Modify the in-memory users dataset:
+
+  my $devices = { "MainRouter1" => $main1, "MainRouter2" => $main2 };
+  $intermapper->devices($devices);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+
+This method will typically trigger a network connection, depending on caching.
+  
+=item maps
+
+returns all maps
+  
+  my %maps = $intermapper->devices(); 
+  my $map = $maps{"MainMap"};
+  print $map->Name;
+
+The returned hash contains instances of L<Net::Intermapper::Map>, using the map name as the hash key. In scalar context, will return hashref. Modify the in-memory users dataset:
+
+  my $maps = { "MainMap" => $main1, "Layer2" => $main2 };
+  $intermapper->maps($maps);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+
+This method will typically trigger a network connection, depending on caching.
+  
+=item interfaces
+
+returns all interfaces
+  
+  my %interfaces = $intermapper->interfaces(); 
+  my $interface = $devices{"UniqueInterfaceID"}; 
+  print $interface->Address;
+
+The returned hash contains instances of L<Net::Intermapper::Interface>, using the interface ID (generated by Intermapper) as the hash key. In scalar context, will return hashref. Modify the in-memory users dataset:
+
+  my $interfaces = { "UniqueKey1" => $iface1, "UniqueKey2" => $iface2 };
+  $intermapper->interfaces($interfaces);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+
+This method will typically trigger a network connection, depending on caching.
+  
+=item vertices
+
+returns all vertices
+  
+  my %vertices = $intermapper->vertices(); 
+  my $vertice = $vertices{"ID"}; # Unique Vertex ID
+  print $vertice->Shape;
+
+The returned hash contains instances of L<Net::Intermapper::Vertice>, using the vertex ID as the hash key. In scalar context, will return hashref. Modify the in-memory users dataset:
+
+  my $vertices = { "UniqueVertexID1" => $vid1, "UniqueVertexID2" => $vid2 };
+  $intermapper->vertices($vertices);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
+
+This method will typically trigger a network connection, depending on caching.
+  
 =item create
 
 This method created a new entry in Intermapper, depending on the argument passed. Record type is detected automatically.
@@ -591,12 +768,13 @@ This method created a new entry in Intermapper, depending on the argument passed
   $intermapper->username("admin");
   $intermapper->password("nmsadmin");
   my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
-  $intermapper->create($user); 
+  my $response = $intermapper->create($user); 
   # Error checking needs to be added
   # print $Net::Intermapper::ERROR unless $id; 
   # $Net::Intermapper::ERROR contains details about failure
 
   # Add more examples
+  # Interfaces and maps cannot be explicitly created!
   
 =item update
 
@@ -604,12 +782,24 @@ This method updates an existing entry in Intermapper, depending on the argument 
 
   my $user = $intermapper->users->{"testuser"};
   $user->Password("TopSecret"); # Change password. Password policies will be enforced!
-  $intermapper->update($user);
+  my $response = $intermapper->update($user);
   # Error checking needs to be added
   # Update user based on Net::Intermapper::User instance
   print $Net::Intermapper::ERROR unless $id;
   # $Net::Intermapper::ERROR contains details about failure
 
+=item delete
+
+This method deletes an existing entry in Intermapper, depending on the argument passed. Record type is detected automatically.
+
+  my $user = $intermapper->users->{"bob"};
+  my $response = $intermapper->delete($user);
+  # Delete existing user
+
+  my $device = $intermapper->devices->{"MAIN_Router"}; # Key in this hash needs to be fixed! Non-unique!!
+  $intermapper->delete($device);
+  # Delete existing device
+  
 =item $ERROR
 
 NEEDS TO BE ADDED
@@ -641,6 +831,12 @@ For this library to work, you need an instance with Intermapper (obviously) or a
 =head1 BUGS
 
 None so far
+
+=head1 TODO
+
+- Filtering should be added (match= keyword in Intermapper documentation)
+- XML input and output needs to be completed!
+- $ERROR variable needs to actually contain error message!
 
 =head1 SUPPORT
 
