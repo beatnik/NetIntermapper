@@ -171,7 +171,7 @@ sub header
   return $header;
 }
 	
-=cut
+=pod
 
 =head1 NAME
 

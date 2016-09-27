@@ -226,10 +226,12 @@ sub header
   $header .= "\r\n";
   return $header;
 }
+
+=pod
 	
 =head1 NAME
 
-Net::Cisco::ACS::User - Access Cisco ACS functionality through REST API - User fields
+Net::Intermapper::Map - Interface with the HelpSystems Intermapper HTTP API - Maps 
 
 =head1 SYNOPSIS
 

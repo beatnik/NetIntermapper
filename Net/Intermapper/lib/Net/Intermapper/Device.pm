@@ -574,7 +574,7 @@ sub header
 }
 
 	
-=cut
+=pod
 
 =head1 NAME
 

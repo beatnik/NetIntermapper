@@ -481,7 +481,7 @@ sub parse_tab
 
 }
 
-=cut
+=pod
 
 =head1 NAME
 
@@ -641,8 +641,6 @@ Value is passed directly to LWP::UserAGent as ssl_opt. Default value (hash-ref) 
 
 This is a required value in the constructor but can be redefined afterwards.   
   
-=back
-
 =item port
 
 TCP port used for queries. This is an optional value in the constructor but can be redefined afterwards. By default, this is set to 8181.
@@ -834,9 +832,15 @@ None so far
 
 =head1 TODO
 
-- Filtering should be added (match= keyword in Intermapper documentation)
-- XML input and output needs to be completed!
-- $ERROR variable needs to actually contain error message!
+=over 3
+
+=item Filtering should be added (match= keyword in Intermapper documentation)
+
+=item XML input and output needs to be completed!
+
+=item $ERROR variable needs to actually contain error message!
+
+=back
 
 =head1 SUPPORT
 
@@ -861,7 +865,8 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-perl(1).
+L<http://download.intermapper.com/docs/UserGuide/Content/09-Reference/09-05-Advanced_Importing/the_directive_line.htm> 
+L<http://download.intermapper.com/schema/imserverschema.html>
 
 =cut
 

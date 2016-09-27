@@ -143,9 +143,11 @@ sub header
   return $header;
 }
 	
+=pod
+    
 =head1 NAME
 
-Net::Cisco::ACS::User - Access Cisco ACS functionality through REST API - User fields
+Net::Intermapper::Vertice - Interface with the HelpSystems Intermapper HTTP API - Vertices 
 
 =head1 SYNOPSIS
 
