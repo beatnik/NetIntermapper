@@ -162,7 +162,7 @@ has 'MapAs' => (
 has 'MapId,' => (
       is  => 'rw',
       isa => 'Str',
-	  default => sub { "" },	  	  
+	  default => sub { "" },
   );
 
 has 'MaxTries' => (
@@ -452,7 +452,7 @@ sub toXML
 return $result;
 }
 	
-sub toCSV
+sub toCSV 
 { my $self = shift;
   my $id = $self->Id;
   my $result = "";
@@ -465,12 +465,25 @@ sub toCSV
   { if ($self->mode eq "create")
     { next if $key eq "Id";
 	  next if $key eq "mode";
+	  next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  next unless $attributes{$key};
       $result .= $attributes{$key}.","; 
 	}
 	if ($self->mode eq "update")
     { next if $key eq "mode";
-	  $result .= $attributes{$key}."\t"; 
+	  next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  $result .= $attributes{$key}.","; 
 	}
+	if ($self->mode eq "delete")
+    { next if $key eq "mode";
+	  next unless $attributes{$key};
+	  $result .= $attributes{$key}.","; 
+	}
+
   }
   chop $result; # Remove the comma of the last field
   $result =~ s/\s$//g;
@@ -491,12 +504,25 @@ sub toTAB
   { if ($self->mode eq "create")
     { next if $key eq "Id";
 	  next if $key eq "mode";
+	  next if $key eq "MapId";
+	  next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  next unless $attributes{$key};
 	  $result .= $attributes{$key}."\t"; 
 	}
 	if ($self->mode eq "update")
     { next if $key eq "mode";
+	  next unless $attributes{$key};
 	  $result .= $attributes{$key}."\t"; 
 	}
+	if ($self->mode eq "delete")
+    { next if $key eq "mode";
+	  next unless $attributes{$key};
+	  $result .= $attributes{"Id"}."\t"; 
+	  last;
+	}
+	
   }
   chop $result; # Remove the comma of the last field
   $result =~ s/\s$//g;
@@ -508,173 +534,487 @@ sub header
 { my $self = shift;
   my $format = shift || "";
   my $header = "# format=$format table=devices fields="; 
+  my @attributes = $self->meta->get_all_attributes;
+  my %attributes = ();
+  for my $attribute (@attributes)
+  { $attributes{$attribute->name} = $attribute->get_value($self) || "";
+  }
   for my $key (@HEADERS)
   { if ($self->mode eq "create")
     { next if $key eq "Id";
-	  $header .= $key."\t,"; 
+	  next if $key eq "mode";
+	  next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  next unless $attributes{$key};
+	  $header .= $key.",";
 	}
 	if ($self->mode eq "update")
-    { $header .= $key."\t,"; 
+    { next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  next if $key eq "mode";
+	  next unless $attributes{$key};
+      $header .= $key.","; 
+	}
+	if ($self->mode eq "delete")
+    { next if $key eq "LastTimeDown";
+	  next if $key eq "LastTimeSysUp";
+	  next if $key eq "LastTimeUp";
+	  next if $key eq "mode";
+	  next unless $attributes{$key};
+      $header .= $key.","; 
 	}
   }
+  if ($self->mode eq "delete")
+  { $header .= " delete=Id,Address,Name "; } # These 3 fields are used for filtering
   chop $header; 
   $header .= "\r\n";
   return $header;
 }
 
 	
+=cut
+
 =head1 NAME
 
-Net::Cisco::ACS::User - Access Cisco ACS functionality through REST API - User fields
+Net::Intermapper::Device - Interface with the HelpSystems Intermapper HTTP API - Devices 
 
 =head1 SYNOPSIS
 
-	use Net::Cisco::ACS;
-	use Net::Cisco::ACS::User;
+  use Net::Intermapper;
+  my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
+  # Options:
+  # hostname - IP or hostname of Intermapper 5.x server
+  # username - Username of Administrator user
+  # password - Password of user
+  # ssl - SSL enabled (1 - default) or disabled (0)
+  # port - TCP port for querying information. Defaults to 8181
+  # modifyport - TCP port for modifying information. Default to 443
+
+  print Dumper $intermapper->users;
+  # Retrieve all users from Intermapper
+  # Returns hash with user name / Net::Intermapper::User pairs
   
-	my $acs = Net::Cisco::ACS->new(hostname => '10.0.0.1', username => 'acsadmin', password => 'testPassword');
-	my $user = Net::Cisco::ACS::User->new("name"=>"soloh","description"=>"Han Solo","identityGroupName"=>"All Groups:MilleniumCrew","password"=>"Leia");
+  print Dumper $intermapper->devices;
+  # Retrieve all devices from Intermapper
+  # Returns hash with device name / Net::Intermapper::Device pairs
+  
+  print Dumper $intermapper->maps;
+  # Retrieve all maps from Intermapper
+  # Returns hash with map name / Net::Intermapper::Map pairs
+  
+  print Dumper $intermapper->interfaces;
+  # Retrieve all interfaces from Intermapper
+  # Returns hash with interface ID / Net::Intermapper::Interface pairs
+  
+  print Dumper $intermapper->vertices;  
+  # Retrieve all vertices from Intermapper
+  # Returns hash with name / Net::Intermapper::Vertice pairs
 
-	my %users = $acs->users;
-	# Retrieve all users from ACS
-	# Returns hash with username / Net::Cisco::ACS::User pairs
-	
-	print $acs->users->{"acsadmin"}->toXML;
-	# Dump in XML format (used by ACS for API calls)
-	
-	my $user = $acs->users("name","acsadmin");
-	# Faster call to request specific user information by name
+  my $user = $intermapper->users->{"admin"};
+  print $user->header; 
+  # Generate 'directive' needed for manipulation. Mostly used internally.
+  # $user->mode("create"); # This changes the header fields
+  # $user->mode("update"); # This also changes the header fields
+  # Both are NOT needed when adding or updating a record
+  print $user->toTAB;
+  print $user->toXML;
+  print $user->toCSV;
+  # Produce human-readable output of each record. 
+  
+  my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
+  print Dumper $intermapper->create($user);
+  # Create new user
+  
+  my $device = Net::Intermapper::Device->new(Name=>"testDevice", MapName=>"TestMap", MapPath=>"/TestMap", Address=>"10.0.0.1");
+  print Dumper $intermapper->create($device);
+  # Create new device
 
-	my $user = $acs->users("id","150");
-	# Faster call to request specific user information by ID (assigned by ACS, present in Net::Cisco::ACS::User)
+  $user->Password("Foobar123");
+  $intermapper->update($user);
+  # Update existing user
 
-	$user->id(0); # Required for new user!
-	my $id = $acs->create($user);
-	# Create new user based on Net::Cisco::ACS::User instance
-	# Return value is ID generated by ACS
-	print "Record ID is $id" if $id;
-	print $Net::Cisco::ACS::ERROR unless $id;
-	# $Net::Cisco::ACS::ERROR contains details about failure
+  my $user = $intermapper->users->{"bob"};
+  intermapper->delete($user);
+   Delete existing user
 
-	my $id = $acs->update($user);
-	# Update existing user based on Net::Cisco::ACS::User instance
-	# Return value is ID generated by ACS
-	print "Record ID is $id" if $id;
-	print $Net::Cisco::ACS::ERROR unless $id;
-	# $Net::Cisco::ACS::ERROR contains details about failure
-
-	$acs->delete($user);
-	# Delete existing user based on Net::Cisco::ACS::User instance
-	
+   my $device = $intermapper->devices->{"UniqueDeviceId"}; 
+   $intermapper->delete($device);
+   # Delete existing device
+   
 =head1 DESCRIPTION
 
-The Net::Cisco::ACS::User class holds all the user relevant information from Cisco ACS 5.x
+Net::Intermapper::Device is a perl wrapper around the HelpSystems Intermapper API provided through HTTP/HTTPS for access to device information.
+
+All calls are handled through an instance of the L<Net::Intermapper> class.
+
+  use Net::Intermapper;
+  my $intermapper = Net::Intermapper->new(hostname => '10.0.0.1', username => 'admin', password => 'nmsadmin');
 
 =head1 USAGE
-
-All calls are typically handled through an instance of the L<Net::Cisco::ACS> class. L<Net::Cisco::ACS::User> acts as a container for user related information.
 
 =over 3
 
 =item new
 
-Class constructor. Returns object of Net::Cisco::ACS::User on succes. The following fields can be set / retrieved:
+Class constructor. Returns object of Net::Intermapper::Device on succes. Attributes are:
 
 =over 5
 
-=item description 
-=item name 
-=item identityGroupName
-=item enablePassword
-=item enabled
-=item password
-=item passwordNeverExpires
-=item passwordType
-=item dateExceeds
-=item dateExceedsEnabled
-=item id
+=item MapName (read-only)
 
-Formatting rules may be in place & enforced by Cisco ACS.
+Name of the map containing the device.
 
-=back
+=item MapPath (read-only)
 
-Read-only values:
+Full path of the map containing the device, including the name of the map.
 
-=over 5
+=item Address (read-write)
 
-=item changePassword
-=item created
-=item attributeInfo
-=item lastLogin
-=item lastModified
-=item lastPasswordChange
-=item loginFailuresCounter
+The IP or AppleTalk address of the device that is probed by InterMapper. The IP address is represented in dotted-decimal notation, e.g. 'a.b.c.d'. The AppleTalk address is represented in slash notation, e.g. 'a/b'.
+
+=item Id (read-only)
+
+A unique, persistent identifier for this device instance. The Id will be unique across all maps on a single InterMapper server. This value is used for lookups in the C<users> method in L<Net::Intermapper>.
+
+=item Name (read-only)
+
+The name of the device. The name is the first non-empty line in a device's label on a map.
+
+=item Probe (read-write)
+
+The human-readable name of the InterMapper probe.
+
+=item Comment (read-write)
+
+The comment associated with the device.
+
+=item Community (read-write)
+
+The SNMP community of the device.
+
+=item DisplayIfUnNumbered (read-write)
+
+True if the device's behaviour is set to display unnumbered interfaces.
+
+=item DNSName (read-write)
+
+The fully-qualified DNS name of the device.
+
+=item IgnoreIfAppleTalk (read-write)
+
+True if the device's behaviour is to ignore AppleTalk interface information.
+
+=item IgnoreIfDiscards (read-write)
+
+True if the device's behaviour is to ignore interface discards.
+
+=item IgnoreIfErrors (read-write)
+
+True if the device's behaviour is to ignore interface errors.
+
+=item IgnoreOutages (read-write)
+
+True if the device's behaviour is to ignore outages.
+
+=item AllowPeriodicReprobe (read-write)
+
+True if the device's behaviour is to allow periodic reprobe.
+
+=item IMProbe (read-write)
+
+A special URL representation describing the InterMapper probe and its parameters, e.g. improbe://address:port/...
+
+=item Latitude (read-write)
+
+The latitude of the device. The value will be a double within the range [-90..90] or empty string if the device does not have this attribute set.
+
+=item Longitude (read-write)
+
+The longitude of the device. The value will be a double within the range [-180..180] or empty string if the device does not have this attribute set.
+
+=item LastTimeDown (read-only)
+
+The time when the device last went down. Value is 0 if device has not gone down since we started monitoring it.
+
+=item LastTimeSysUp (read-only)
+
+The time when the device last came up (ie rebooted), based on the value of sysUpTime. The value is 0 if unknown.
+
+=item LastTimeUp (read-only)
+
+The time when the device status last transitioned from DOWN to UP. Value is 0 if this has not happened since we started monitoring.
+
+=item MACAddress (read-only)
+
+The device's MAC Address. If the device has multiple interfaces, this field will contain the MAC Address associated with the device's main IP Address (the same address in the address field).
+
+=item MapAs (read-write)
+
+Value is one of { ROUTER , SWITCH , HUB, END SYSTEM }
+
+=item MapId (read-only)
+
+The unique Id of the map file containing the device.
+
+=item MaxTries (read-write)
+
+The maximum number of attempts to reach the device, typically indicates the maximum number of packets to send during each poll, for packet-based probes.
+
+=item NetBIOSName (read-write)
+
+The NetBIOS/WINS name of the device.
+
+=item PctLoss (read-only)
+
+The percent loss (# packets lost/total # packets sent).
+
+=item ShortTermPctLoss (read-only)
+
+The short-term percent loss (# packets lost/# packets sent).
+
+=item Availability (read-only)
+
+The percent availability (time up/time monitored).
+
+=item PollInterval (read-write)
+
+The poll interval of the device, in seconds. Value is 0 if non-polling.
+
+=item Port (read-write)
+
+The UDP or TCP port number. If the port number is not applicable, this value is always 0. (e.g. for ICMP)
+
+=item Resolve (read-write)
+
+Value is one of { name , addr , none }.
+
+=item RoundTripTime (read-only)
+
+The last round-trip time in milliseconds, if known.
+
+=item SNMPv3AuthPassword (read-write)
+
+The device's SNMPv3 authentication password.
+
+=item SNMPv3AuthProtocol (read-write)
+
+The device's SNMPv3 authentication protocol (MD5, SHA, None).
+
+=item SNMPv3PrivPassword (read-write)
+
+The device's SNMPv3 privacy password.
+
+=item SNMPv3PrivProtocol (read-write)
+
+The device's SNMPv3 privacy protocol (DES, None).
+
+=item SNMPv3UserName (read-write)
+
+The device's SNMPv3 user name.
+
+=item SNMPVersion (read-write)
+
+The device's SNMP version (SNMPv1, SNMPv2c, or SNMPv3).
+
+=item Status (read-only)
+
+The status of the device. The value is one of { 'UP', 'DOWN', 'UNKNOWN' }.
+
+=item StatusLevel (read-only)
+
+The status level of the device. The value is one of { 'Unknown', 'OK', 'Warning, Acked', 'Warning', 'Alarm, Acked', 'Alarm', 'Critical', 'Critical, Acked', 'Down', 'Down, Acked'}.
+
+=item StatusLevelReason (read-only)
+
+The reason the device has its status level.
+
+=item SysDescr (read-only)
+
+The value of sysDescr.
+
+=item SysName (read-only)
+
+The value of sysName.
+
+=item SysContact (read-only)
+
+The value of sysContact.
+
+=item SysLocation (read-only)
+
+The value of sysLocation.
+
+=item SysObjectID (read-only)
+
+The value of sysObjectID.
+
+=item TimeOut (read-write)
+
+The timeout of the device, in seconds. Value is 0 if not-applicable to the probe.
+
+=item IMID (read-only)
+
+Identifier of the device in the IMID format.
+
+=item Type (read-only)
+
+One of { none, other, snmp, tcp, udp, icmp, cmd, bigbro, ntsvcs }. These values have been updated in 5.0 to match the values used by the database in the probekind field of the devices table.
+
+=item ProbeXML (read-only)
+
+XML dataset DTD, type='probe'.
+
+=item SNMPVersionInt (read-only)
+
+1, 2, 3 - SNMP versions. 0 for non-SNMP.
+
+=item SysServices (read-only)
+
+16-bits integer.
+
+=item EntSerialNum (read-only)
+
+SnmpAdminString (entPhysicalSerialNum of chassis).
+
+=item EntMfgName (read-only)
+
+SnmpAdminString (entPhysicalMfgName of chassis).
+
+=item EntModelName (read-only)
+
+SnmpAdminString (entPhysicalModelName of chassis).
+
+=item DataRetentionPolicy (read-only)
+
+Data retention policy for IM Database
+
+=item CustomerNameReference (read-only)
+
+Customer-supplied device name reference, for linking to an external database.
+
+=item EnterpriseID (read-only)
+
+The value of sysEnterpriseID.
+
+=item DeviceKind (read-only)
+
+User-specified device type.
+
+=item SysUpTime (read-only)
+
+System uptime.
+
+=item LastModified (read-only)
+
+Timestamp of last modification to this device.
+
+=item Parent (read-only)
+
+Device ID of the parent probe group; this device's id if this device is a probe group; 0 if the device is not part of a probe group.
+
+=item Acknowledge (read-write)
+
+The acknowledgement state of the device; one of { 'None', 'Basic', 'Maintenance' }. The AckMessage field must also be set to import this field. Indefinite maintenance will be set if AckExpiration is missing and state is set to 'Maintenance'.
+
+=item AckMessage (read-write)
+
+The message associated with the acknowledge state. If Acknowledge is not set and an AckMessage is supplied, Acknowledge will be set to 'Basic'.
+
+=item AckExpiration (read-write)
+
+The absolute time when the timed acknowledgement expires, if any. The AckMessage field must also be set to import this field. Acknowledge will be set to 'Maintenance' if not supplied.
+
+=item AckTimer (read-only)
+
+The time in seconds remaining until the timed acknowledgement expires, if any.
+
+=item VertexId (read-only)
+
+The Vertex Id of the vertex associated with the device. Matches the VertexId of the corresponding vertex in the vertices table.
+
+=item Layer2 (read-only)
+
+True if layer2 mapping is enabled for this device.
 
 =back
 
 =over 3
 
-=item description 
-
-The user account description, typically used for full name.
-
-=item name 
-
-The user account name. This is a required value in the constructor but can be redefined afterwards.
-
-=item identityGroupName
-
-The user group name. This is a required value in the constructor but can be redefined afterwards. See L<Net::Cisco::ACS::IdentityGroupName>.
-
-=item enablePassword
-
-The enable password (for Cisco-level access), not needed if you work with command sets in your access policies.
-
-=item enabled
-
-Boolean flag to indicate account status.
-
-=item password
-
-Password. When querying user account information, the password will be masked as *********. This is a required value in the constructor but can be redefined afterwards.
-
-=item passwordNeverExpires
-
-Boolean flag to indicate account expiration status.
-
-=item passwordType
-
-A read-only valie that indicates the password type, either for Internal User or Active Directory (needs confirmation).
-
-=item dateExceeds
-
-Date field to automatically deactivate the account once passed.
-
-=item dateExceedsEnabled
-
-Boolean flag to activate the automatic deactivation feature based on expiration dates.
-
-=item id
-
-Cisco ACS generates a unique ID for each User record. This field cannot be updated within ACS but is used for reference. Set to 0 when creating a new record or when duplicating an existing user.
-
-=item toXML
-
-Dump the record in ACS accept XML formatting (without header).
-
 =item header
 
-Generate the correct XML header. Takes output of C<toXML> as argument.
+Returns the C<directive> aka data header required by the Intermapper API to perform CRUD actions. This is handled through the C<create>, C<update> and C<delete> method and should not really be used.
 
 =back
 
+=over 3 
+
+=item toTAB
+
+Returns the object data formatted in TAB delimited format. Used in combination with the C<header> and the C<format> method in L<Net::Intermapper> to perform CRUD actions. This is handled through the C<create>, C<update> and C<delete> method and should not really be used.
+
+=back
+
+=over 3
+
+=item toCSV
+
+Returns the object data formatted in Comma Separated delimited format. Used in combination with the C<header> and the C<format> method in L<Net::Intermapper> to perform CRUD actions. This is handled through the C<create>, C<update> and C<delete> method and should not really be used.
+
+=back
+
+=over 3
+
+=item toXML
+
+Returns the object data formatted in XML format. Used in combination with the C<header> and the C<format> method in L<Net::Intermapper> to perform CRUD actions. This is handled through the C<create>, C<update> and C<delete> method and should not really be used.
+
+=back
+
+=over 3
+
+=item mode
+
+Internal method to properly format the data and header for CRUD actions. Typically not used.
+
+=back
+
+=item $ERROR
+
+NEEDS TO BE ADDED
+
+This variable will contain detailed error information.	
+	
+=back
+
+=head1 REQUIREMENTS
+
+For this library to work, you need an instance with Intermapper (obviously) or a simulator like L<Net::Intermapper::Mock>. 
+
+=over 3
+
+=item L<Moose>
+
+=item L<IO::Socket::SSL>
+
+=item L<LWP::UserAgent>
+
+=item L<XML::Simple>
+
+=item L<MIME::Base64>
+
+=item L<URI::Escape>
+
+=back
+	
 =head1 BUGS
 
-None yet
+None so far
 
 =head1 SUPPORT
 
-None yet :)
+None so far :)
 
 =head1 AUTHOR
 
@@ -695,11 +1035,13 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-perl(1).
+L<http://download.intermapper.com/docs/UserGuide/Content/09-Reference/09-05-Advanced_Importing/the_directive_line.htm> 
+L<http://download.intermapper.com/schema/imserverschema.html>
 
 =cut
 
 #################### main pod documentation end ###################
+
 __PACKAGE__->meta->make_immutable();
 
 1;

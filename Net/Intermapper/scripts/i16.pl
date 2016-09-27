@@ -12,10 +12,9 @@ my $intermapper = $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", use
 my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
 
 $intermapper->create($user);
-$user = $intermapper->users->{"testuser"};
-print "OK\n" if $user->Password eq "Test12345";
+$user = $intermapper->users->{'testuser'}; 
+print "OK\n" if $user->Name eq "testuser";
 
-$user->Password("Foobar123");
-$intermapper->update($user);
+print Dumper $intermapper->delete($user);
 $user = $intermapper->users->{"testuser"};
-print "OK\n" if $user->Password eq "Foobar123";
+print "OK\n" if !$user;

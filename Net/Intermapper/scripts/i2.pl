@@ -5,4 +5,5 @@ use Net::Intermapper;
 use Data::Dumper;
 
 my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
-$intermapper->devices;
+print Dumper $intermapper->devices;
+

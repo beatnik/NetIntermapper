@@ -6,7 +6,7 @@ use Net::Intermapper::Map;
 
 use Data::Dumper;
 
-my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
+#my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
 #my $map = Net::Intermapper::Map->new(MapName=>"TestMap");
 # print Dumper $intermapper->create($map);
 # Not supported?!?!?
