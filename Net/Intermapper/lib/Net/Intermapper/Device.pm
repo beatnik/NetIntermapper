@@ -5,7 +5,7 @@ use Moose;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS @HEADERS);
-    $VERSION     = '0.02';
+    $VERSION     = '0.03';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -585,63 +585,84 @@ Net::Intermapper::Device - Interface with the HelpSystems Intermapper HTTP API -
   use Net::Intermapper;
   my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
   # Options:
-  # hostname - IP or hostname of Intermapper 5.x server
+  # hostname - IP or hostname of Intermapper 5.x and 6.x server
   # username - Username of Administrator user
   # password - Password of user
   # ssl - SSL enabled (1 - default) or disabled (0)
   # port - TCP port for querying information. Defaults to 8181
   # modifyport - TCP port for modifying information. Default to 443
+  # cache - Boolean to enable smart caching or force network queries
 
-  print Dumper $intermapper->users;
-  # Retrieve all users from Intermapper
-  # Returns hash with user name / Net::Intermapper::User pairs
+  my %users = $intermapper->users;
+  my $users_ref = $intermapper->users;
+  # Retrieve all users from Intermapper, Net::Intermapper::User instances
+  # Returns hash or hashref, depending on context
   
-  print Dumper $intermapper->devices;
-  # Retrieve all devices from Intermapper
-  # Returns hash with device name / Net::Intermapper::Device pairs
-  
-  print Dumper $intermapper->maps;
-  # Retrieve all maps from Intermapper
-  # Returns hash with map name / Net::Intermapper::Map pairs
-  
-  print Dumper $intermapper->interfaces;
-  # Retrieve all interfaces from Intermapper
-  # Returns hash with interface ID / Net::Intermapper::Interface pairs
-  
-  print Dumper $intermapper->vertices;  
-  # Retrieve all vertices from Intermapper
-  # Returns hash with name / Net::Intermapper::Vertice pairs
+  my %devices = $intermapper->devices;
+  my $devices_ref = $intermapper->devices;
+  # Retrieve all devices from Intermapper, Net::Intermapper::Device instances
+  # Returns hash or hashref, depending on context
+
+  my %maps = $intermapper->maps;
+  my $maps_ref = $intermapper->maps;
+  # Retrieve all maps from Intermapper, Net::Intermapper::Map instances
+  # Returns hash or hashref, depending on context
+
+  my %interfaces = $intermapper->interfaces;
+  my $interfaces_ref = $intermapper->interfaces;
+  # Retrieve all interfaces from Intermapper, Net::Intermapper::Interface instances
+  # Returns hash or hashref, depending on context
+
+  my %vertices = $intermapper->vertices;
+  my $vertices_ref = $intermapper->vertices;
+  # Retrieve all vertices from Intermapper, Net::Intermapper::Vertice instances
+  # Returns hash or hashref, depending on context
 
   my $user = $intermapper->users->{"admin"};
+  
+  # Each class will generate specific header. These are typically only for internal use but are compliant to the import format Intermapper uses.
   print $user->header; 
-  # Generate 'directive' needed for manipulation. Mostly used internally.
-  # $user->mode("create"); # This changes the header fields
-  # $user->mode("update"); # This also changes the header fields
-  # Both are NOT needed when adding or updating a record
+  print $device->header;
+  print $map->header;
+  print $interface->header;
+  print $vertice->header;
+
   print $user->toTAB;
-  print $user->toXML;
-  print $user->toCSV;
-  # Produce human-readable output of each record. 
+  print $device->toXML; # This one is broken still!
+  print $map->toCSV;
+  # Works on ALL subclasses
+  # Produce human-readable output of each record in the formats Intermapper supports
   
   my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
-  print Dumper $intermapper->create($user);
+  my $response = $intermapper->create($user);
   # Create new user
+  # Return value is HTTP::Response object
   
   my $device = Net::Intermapper::Device->new(Name=>"testDevice", MapName=>"TestMap", MapPath=>"/TestMap", Address=>"10.0.0.1");
-  print Dumper $intermapper->create($device);
+  my $response = $intermapper->create($device);
   # Create new device
+  # Return value is HTTP::Response object
 
   $user->Password("Foobar123");
-  $intermapper->update($user);
+  my $response = $intermapper->update($user);
   # Update existing user
+  # Return value is HTTP::Response object
 
   my $user = $intermapper->users->{"bob"};
-  intermapper->delete($user);
-   Delete existing user
+  my $response = $intermapper->delete($user);
+  # Delete existing user
+  # Return value is HTTP::Response object
 
-   my $device = $intermapper->devices->{"UniqueDeviceId"}; 
-   $intermapper->delete($device);
-   # Delete existing device
+  my $device = $intermapper->devices->{"UniqueDeviceID"};
+  my $response = $intermapper->delete($device);
+  # Delete existing device
+  # Return value is HTTP::Response object
+
+  my $users = { "Tom" => $tom_user, "Bob" => $bob_user };
+  $intermapper->users($users);
+  # At this point, there is no real reason to do this as update, create and delete work with explicit arguments.
+  # But it can be done with users, devices, interfaces, maps and vertices
+  # Pass a hashref to each method. This will NOT affect the smart-caching (only explicit calls to create, update and delete do this - for now).
    
 =head1 DESCRIPTION
 
@@ -1005,6 +1026,8 @@ For this library to work, you need an instance with Intermapper (obviously) or a
 =item L<MIME::Base64>
 
 =item L<URI::Escape>
+
+=item L<Text::CSV_XS>
 
 =back
 	

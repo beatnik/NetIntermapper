@@ -10,6 +10,7 @@ Module::Build->new
                     'XML::Simple' => '>= 2.0',
                     'MIME::Base64' => '3.15',
                     'URI' => '1.71',
-                    'Module::Build' => '0.42'
+                    'Module::Build' => '0.42',
+                    'Text::CSV_XS' => '1.20'
       }
     )->create_build_script;

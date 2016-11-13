@@ -5,7 +5,7 @@ use Moose;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS @HEADERS);
-    $VERSION     = '0.02';
+    $VERSION     = '0.03';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -238,7 +238,7 @@ Net::Intermapper::Map - Interface with the HelpSystems Intermapper HTTP API - Ma
   use Net::Intermapper;
   my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin");
   # Options:
-  # hostname - IP or hostname of Intermapper 5.x server
+  # hostname - IP or hostname of Intermapper 5.x and 6.x server
   # username - Username of Administrator user
   # password - Password of user
   # ssl - SSL enabled (1 - default) or disabled (0)
@@ -272,20 +272,19 @@ Net::Intermapper::Map - Interface with the HelpSystems Intermapper HTTP API - Ma
   # Returns hash or hashref, depending on context
 
   my $user = $intermapper->users->{"admin"};
+  
+  # Each class will generate specific header. These are typically only for internal use but are compliant to the import format Intermapper uses.
   print $user->header; 
   print $device->header;
   print $map->header;
   print $interface->header;
   print $vertice->header;
-  # Generate 'directive' needed for manipulation. Mostly used internally.
-  # $user->mode("create"); # This changes the header fields
-  # $user->mode("update"); # This also changes the header fields
-  # Both are NOT needed when adding or updating a record
+
   print $user->toTAB;
-  print $device->toXML;
+  print $device->toXML; # This one is broken still!
   print $map->toCSV;
-  # Works on ALL classes
-  # Produce human-readable output of each record. 
+  # Works on ALL subclasses
+  # Produce human-readable output of each record in the formats Intermapper supports
   
   my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345");
   my $response = $intermapper->create($user);
@@ -468,6 +467,8 @@ For this library to work, you need an instance with Intermapper (obviously) or a
 =item L<MIME::Base64>
 
 =item L<URI::Escape>
+
+=item L<Text::CSV_XS>
 
 =back
 
