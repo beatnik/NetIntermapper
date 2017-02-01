@@ -5,10 +5,12 @@ use Net::Intermapper;
 use Net::Intermapper::Device;
 
 use Data::Dumper;
+use warnings;
+use strict;
 
 # Adding and updating requires a different username and password
 # Use the user you configured for the web-based configuration
-my $intermapper = $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin", format=>"tab");
+my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin", format=>"tab");
 my $device = Net::Intermapper::Device->new(Name=>"testDevice", MapName=>"TestMap", MapPath=>"/TestMap", Address=>"10.0.0.1");
 $intermapper->create($device);
 $device = $intermapper->devices->{'10.0.0.1'}; # No DNS!?!

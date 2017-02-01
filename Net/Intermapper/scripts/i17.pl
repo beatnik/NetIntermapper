@@ -5,10 +5,12 @@ use Net::Intermapper;
 use Net::Intermapper::User;
 
 use Data::Dumper;
+use warnings;
+use strict;
 
 # Adding and updating requires a different username and password
 # Use the user you configured for the web-based configuration
-my $intermapper = $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin", format=>"tab");
+my $intermapper = Net::Intermapper->new(hostname=>"10.0.0.1", username=>"admin", password=>"nmsadmin", format=>"tab");
 my $user = Net::Intermapper::User->new(Name=>"testuser", Password=>"Test12345", Groups=>"Read_only,Z-Welcome");
 $intermapper->create($user);
 $user = $intermapper->users->{'testuser'}; 
