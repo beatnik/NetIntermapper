@@ -42,13 +42,13 @@ has 'Password' => (
 has 'Guest' => (
 	is => 'rw',
 	isa => 'Str',
-	default => sub { "false"; },
+	default => sub { ""; },
 	);
 
 has 'External' => (
 	is => 'rw',
 	isa => 'Str',
-	default => sub { ""; },
+	default => sub { "false"; },
 	);
 
 has 'mode' => ( # create, update, delete
@@ -64,7 +64,7 @@ sub toXML
   my $id = $self->Id;
   my $name = $self->Name || "";
   my $groups = $self->Groups || "Read_only";  
-  my $external = $self->External || "";
+  my $external = $self->External || "false";
   my $guest = $self->Guest || "true";      
   my $password = $self->Password || "&#0;";
   my $result = "";
