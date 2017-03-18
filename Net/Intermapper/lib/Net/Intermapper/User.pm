@@ -11,7 +11,7 @@ BEGIN {
     @EXPORT_OK   = qw();
     %EXPORT_TAGS = ();
 	
-	@HEADERS = qw(Id Name Password External Guest Groups);
+	@HEADERS = qw(Id Name Password Guest External Groups);
 };
 
 # MOOSE!
@@ -65,7 +65,7 @@ sub toXML
   my $name = $self->Name || "";
   my $groups = $self->Groups || "Read_only";  
   my $external = $self->External || "false";
-  my $guest = $self->Guest || "true";      
+  my $guest = $self->Guest || ""; 
   my $password = $self->Password || "&#0;";
   my $result = "";
   # Need to build the XML formatting!!

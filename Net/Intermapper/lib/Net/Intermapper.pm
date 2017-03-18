@@ -202,7 +202,6 @@ sub query
   $hostname .= "/~export/$type.$format"; 
   my $request = HTTP::Request->new("GET" => $hostname);
   my $useragent = LWP::UserAgent->new (ssl_opts => $self->ssl_options);
-
   my $result = $useragent->request($request);
   if ($result->code eq "400") { $ERROR = "Bad Request - HTTP Status: 400"; }
   if ($result->code eq "410") { $ERROR = "Unknown $type queried by name or ID - HTTP Status: 410"; }  
