@@ -5,7 +5,7 @@ use Moose;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS @HEADERS);
-    $VERSION     = '0.03';
+    $VERSION     = '0.04';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -86,14 +86,17 @@ sub toCSV
   { if ($self->mode eq "create")
     { next if $key eq "Id";
 	  next if $key eq "mode";
+      next unless $attributes{$key};
       $result .= $attributes{$key}.","; 
 	}
 	if ($self->mode eq "update")
     { next if $key eq "mode";
+      next unless $attributes{$key};
 	  $result .= $attributes{$key}.","; 
 	}
 	if ($self->mode eq "delete")
     { next if $key eq "mode";
+      next unless $attributes{$key};
 	  next unless $attributes{$key};
 	  $result .= $attributes{$key}.","; 
 	}

@@ -23,7 +23,7 @@ use Net::Intermapper::Vertice;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $ERROR %_CHANGED);
-    $VERSION     = '0.03';
+    $VERSION     = '0.04';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
